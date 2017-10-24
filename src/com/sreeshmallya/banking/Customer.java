@@ -15,7 +15,6 @@ public class Customer {
             return;
         }
 
-
         try {
             Connection con = Connector.getConnection();
             PreparedStatement stmt = con.prepareStatement("insert into " + tableName + "(name, fathers_name, email, PAN, id) values(?, ?, ?, ?, ?)");

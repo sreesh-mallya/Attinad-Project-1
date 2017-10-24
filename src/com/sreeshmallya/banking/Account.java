@@ -27,22 +27,12 @@ public class Account {
             stmt.setInt(3, accNo);
             stmt.setInt(4, balance);
 
-            stmt.executeUpdate();
-
-            stmt = con.prepareStatement(
-                    "insert into " + tableName + " values (?, ?, ?, ?)"
-            );
-            stmt.setString(1, type);
-            stmt.setInt(2, customer_id);
-            stmt.setInt(3, accNo);
-            stmt.setInt(4, balance);
-
             int i = stmt.executeUpdate();
+
+            Transaction.addRecord("CREDIT", accNo, balance, mode);
 
             System.out.println("\nAdded " + i + " row(s).\nAccount was successfully opened. " +
                     "(account no. : " + accNo + ")");
-
-            Transaction.addRecord("CREDIT", accNo, balance, mode);
 
         } catch (Exception e) {
             e.printStackTrace();
