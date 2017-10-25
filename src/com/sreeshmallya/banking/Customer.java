@@ -8,13 +8,13 @@ import java.sql.SQLException;
 public class Customer {
     private static String tableName = "customer";
 
-    static void add(String name, String fathersName, String email, String PAN, String type, int amount, String mode) {
-        // TODO Validation
+    static int add(String name, String fathersName, String email, String PAN, String type, int amount, String mode) {
+        // TODO : User input validation
         if (amount < 1000) {
             System.out.println("You need more than a 1000 bucks to open an account.");
-            return;
+            return 0;
         }
-
+        int accNo = 0;
         try {
             Connection con = Connector.getConnection();
             PreparedStatement stmt = con.prepareStatement("insert into " + tableName + "(name, fathers_name, email, PAN, id) values(?, ?, ?, ?, ?)");
@@ -26,9 +26,11 @@ public class Customer {
             stmt.setInt(5, id);
             int i = stmt.executeUpdate();
             System.out.println("\nYour Customer ID is " + id);
-            Account.add(type, id, amount, mode);
+            accNo = Account.add(type, id, amount, mode);
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            return accNo;
         }
     }
 

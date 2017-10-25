@@ -7,11 +7,12 @@ import java.sql.ResultSet;
 public class Account {
     private static String tableName = "account";
 
-    static void add(String type, int customer_id, int balance, String mode) {
+    static int add(String type, int customer_id, int balance, String mode) {
+        int accNo = 0;
         try {
             if (balance < 1000) {
                 System.out.println("You need more than a 1000 bucks to open an account.");
-                return;
+                return accNo;
             }
 
             Connection con = Connector.getConnection();
@@ -20,7 +21,7 @@ public class Account {
             );
 
             // Generate account number
-            int accNo = HashCodeGenerator.generateHash(8);
+            accNo = HashCodeGenerator.generateHash(8);
 
             stmt.setString(1, type);
             stmt.setInt(2, customer_id);
@@ -31,11 +32,12 @@ public class Account {
 
             Transaction.addRecord("CREDIT", accNo, balance, mode);
 
-            System.out.println("\nAdded " + i + " row(s).\nAccount was successfully opened. " +
-                    "(account no. : " + accNo + ")");
+            System.out.println("\nAccount was successfully opened.");
 
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            return accNo;
         }
     }
 
@@ -113,6 +115,24 @@ public class Account {
             System.out.println("\nAccount ( A/C no. : " + accNo + ") has been credited with " + amount + ".");
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+
+    public static boolean exists(int accNo) {
+        boolean x = false;
+        try {
+            Connection con = Connector.getConnection();
+
+            PreparedStatement stmt = con.prepareStatement(
+                    "select exists ( select * from " + tableName + " where account_no = " + accNo + ")"
+            );
+            ResultSet rs = stmt.executeQuery();
+            x = rs.getInt(1) == 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            return x;
         }
     }
 

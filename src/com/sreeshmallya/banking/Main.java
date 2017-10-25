@@ -5,19 +5,16 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
+
+        /* TODO : User input validation */
+
         // Database credentials
         String databaseName = "bank";
         String user = "root";
         String pwd = "root";
 
         String name, fathersName, email, PAN, accountType, mode;
-        int _accountType, amount, _mode;
-
-        int account_no = HashCodeGenerator.generateHash(8);
-        System.out.println(account_no);
-
-        int opt;
-
+        int _accountType, amount, _mode, accNo = 0, opt;
         Connector.connect(databaseName, user, pwd); // Connect to database
         Scanner scn = new Scanner(System.in);
 
@@ -46,7 +43,15 @@ public class Main {
             System.out.print("\nMode : 1. Cheque or 2. Cash\n>>> ");
             _mode = scn.nextInt();
             if (_mode == 1) mode = "CHQ"; else mode = "CSH";
-            Customer.add(name, fathersName, email, PAN, accountType, amount, mode);
+            accNo = Customer.add(name, fathersName, email, PAN, accountType, amount, mode);
+            System.out.println("Your A/C no. is : " + accNo);
+        } else {
+            System.out.print("\nEnter your A/C no. : ");
+            accNo = scn.nextInt();
+            if (!Account.exists(accNo)) {
+                System.out.println("Account does not exist. Please try again.\n");
+                System.exit(1);
+            }
         }
 
         while (true) {
@@ -60,7 +65,7 @@ public class Main {
                     _mode = scn.nextInt();
                     if (_mode == 1) mode = "CHQ";
                     else mode = "CSH";
-                    Account.credit(account_no, amount, mode);
+                    Account.credit(accNo, amount, mode);
                 } else if (opt == 2) {
                     System.out.print("\nWithdraw Amount -- Amount to Withdraw : ");
                     amount = scn.nextInt();
@@ -68,16 +73,16 @@ public class Main {
                     _mode = scn.nextInt();
                     if (_mode == 1) mode = "CHQ";
                     else mode = "CSH";
-                    Account.debit(account_no, amount, mode);
+                    Account.debit(accNo, amount, mode);
                 } else if (opt == 4) {
                     System.out.println("\nLogging off...");
+                    Connector.disconnect();
+                    scn.close();
                     break;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                Connector.disconnect();
-                scn.close();
+                break;
             }
         }
     }
